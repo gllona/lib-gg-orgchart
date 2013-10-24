@@ -1,0 +1,23 @@
+{
+  "name": "lib-gg-orgchart",
+  "version": "0.4.3-beta5",
+  "homepage": "http://librerias.logicas.org/lib_gg_orgchart/",
+  "authors": [
+    "Gorka G Llona <gllona@gmail.com>"
+  ],
+  "description": "JavaScript Organizational Chart Drawing Library",
+  "main": "lib_gg_orgchart.js",
+  "license": "LGPL",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "1.9",
+    "raphael": "2.1.0",
+    "jsrender": "~1.0.0-beta"
+  }
+}
