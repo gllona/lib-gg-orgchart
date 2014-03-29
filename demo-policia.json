@@ -1,0 +1,37 @@
+{
+	"id" : 1,
+	"title" : "Mi organigrama",
+	"root" : {
+		"title" : "Comandancia",
+		"subtitle": "Pedro Perez",
+		"children" : [
+			{ "title" : "CCCP", "subtitle": "(collateral node)", "type" : "collateral" },
+			{ "title" : "Consultoría\nJurídica", "type" : "staff" },
+			{ "title" : "Informática", "type" : "staff", "subtitle": "(dashed node)", "subtype" : "dashed" },
+			{ "id": "142857", "title" : "Inteligencia", "subtitle": "(staff node)", "type" : "staff" },
+			{
+				"title" : "CCP Los Ruices",
+				"children" : [
+					{ "title" : "Coordinación de\nPolicía Comunal" },
+					{ "title" : "Coordinación de\nPolicía Montada" },
+					{ "title" : "Oficina de\nAtención a\nla Víctima 1", "subtitle" : "Juan López" }
+				]
+			},
+			{
+				"title" : "CCP Catia", "subtitle": "(subordinate node)",
+				"children" : [
+					{ "title" : "Coordinación de\nPolicía Marítima" },
+					{ "title" : "Coordinación de\nPolicía Aérea" },
+					{ "title" : "Oficina de\nAtención a\nla Víctima 2", "subtitle" : "Gorka LLona" }
+				]
+			},
+			{
+				"title" : "Servicios Generales",
+				"children": [
+					{ "title" : "Mantenimiento" },
+					{ "title" : "Vehículos" }
+				]
+			}
+		]
+	}	
+}

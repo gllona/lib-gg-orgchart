@@ -1,0 +1,74 @@
+{
+	"id" : 1,
+	"title" : "Mi organigrama",
+	"root" : {
+		"id" : "1",
+		"title" : "10",
+		"children" : [
+			{ "id" : "10A", "title" : "10A", "type" : "collateral" },
+			{ "id" : "10B", "title" : "10B", "type" : "collateral" },
+			{ "id" : "10s1", "title" : "10s1", "type" : "staff" },
+			{ "id" : "10s2", "title" : "10s2", "type" : "staff" },
+			{ "id" : "10s3", "title" : "10s3", "type" : "staff" },
+			{ "id" : "10s4", "title" : "10s4", "type" : "staff" },
+			{ "id" : "10s5", "title" : "10s5", "type" : "staff" },
+			{
+				"id" : "11", "title" : "11",
+				"children" : [
+					{ "id" : "111", "title" : "111" },
+					{ "id" : "112", "visible" : false,
+						"children" : [
+							{ "id" : "1121", "title" : "1121", "type": "staff" },
+							{ "id" : "1122", "title" : "1122", "type": "staff" },
+							{ "id" : "1123", "title" : "1123", "type": "staff" },
+							{ "id" : "1124", "title" : "1124", "type": "staff" },
+							{ "id" : "1125", "title" : "1125", "type": "staff" }
+						]
+					}
+				]
+			},
+			{ "id" : "12", "visible" : false,
+				"children" : [
+					{ "id" : "12A", "title" : "12A", "type" : "collateral" },
+					{ "id" : "12B", "title" : "12B", "type" : "collateral" },
+					{ "id" : "121", "title" : "121", "type" : "subordinate", 
+						"children" : [
+						    { "id" : "1211", "title" : "1211", "type" : "staffleft" },
+						    { "id" : "1213", "title" : "1213", "type" : "staffleft" },
+							{ "id" : "1212", "title" : "1212", "type" : "stafftop"  },
+						    { "id" : "1214", "title" : "1214", "type" : "stafftop"  },
+						    { "id" : "1215", "title" : "1215", "type" : "staffleft" }
+						] },
+					{ "id" : "122", "title" : "122", "type" : "subordinate"} 
+				]
+			},
+			{
+				"id" : "13", "title" : "13",
+				"children" : [
+					{ "id" : "130A", "title" : "130A", "type" : "collateral" },
+					{ "id" : "130B", "title" : "130B", "type" : "collateral",
+						"children" : [
+							{ "id" : "130B1", "title" : "130B1", "type" : "subordinate" },
+							{ "id" : "130B2", "title" : "130B2", "type" : "subordinate" }
+						]
+					},
+					{ "id" : "131", "title" : "131", "type" : "staff",
+						"children" : [
+							{ "id" : "1311", "title" : "1311" },
+							{ "id" : "1312", "title" : "1312" }
+						]
+					},
+					{ "id" : "134", "title" : "134" },
+					{ "id" : "135", "title" : "135" },
+					{ "id" : "136", "title" : "136" },
+					{ "id" : "137", "title" : "137",
+						"children" : [
+							{ "id" : "1371", "title" : "1371" },
+							{ "id" : "1372", "title" : "1372" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

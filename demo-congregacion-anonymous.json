@@ -1,0 +1,37 @@
+{
+	"id": 1,
+	"title": "Org Chart", 
+	"root": {
+		"title": "Father John Anderson",
+		"subtitle": "District Superior",
+		"id": "fja",
+		"children": [
+			{ "id": "foc", "title": "Father Onius Chilhood", "subtitle": "Second Assistant", "type": "staff" },
+			{ "id": "fam", "title": "Father Andy Meller", "subtitle": "Second Assistant", "type": "staff" },
+			{ "id": "fnt", "title": "Father Nexius Thomas", "subtitle":"District Secretary", "type": "staff" },
+			{ "id": "ftg", "title": "Father Tom Gallahan", "subtitle": "District Bursar", "type":"subordinate",
+				"children": [
+					{ "id": "asw", "title": "Arnold Swysse", "subtitle": "District Accountant", "type": "staff" },
+					{ "id": "eth", "title": "Elba Thomasson", "subtitle": "Accounting Assistant", "type": "staff" },
+					{ "id": "sin", "title": "Scott Inner", "subtitle": "Fundraising", "type": "staff" },
+					{ "id": "lts", "title": "La Tse Wang", "subtitle": "Bookkeeper", "type": "staff" }
+				]
+			},
+			{ "id": "fos", "title": "Father Olaf Svergsson", "subtitle": "Communications Officer", "type": "staff",
+				"children":[
+					{ "id": "lgl", "title": "Linda Gladnner", "subtitle": "Designer/Writer", "type": "subordinate" },
+					{ "id": "jbl", "title": "Jeff Blackwood", "subtitle": "Website Manager", "type": "subordinate" }
+				]
+			},
+			{ "id": "ndu", "title": "Nilsen Ducatti", "subtitle": "IT Chief", "type": "subordinate",
+				"children": [
+					{ "id": "bat", "title": "Brother Angelus Thressard", "subtitle": "IT Administrator", "type": "subordinate",
+						"children": [
+							{ "id": "ban", "title": "Bee Antflower", "subtitle": "IT Assistant", "type": "subordinate" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

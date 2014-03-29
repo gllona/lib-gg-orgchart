@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<title>lib_ggOrgChart v1.0.0beta1 example 1</title>
+
+<script type='text/javascript' src="jquery-1.9.1.js"></script>
+<script type="text/javascript" src="jspdf-ggorgchart.js" ></script>
+<script type="text/javascript" src="rgbcolor.js"></script> 
+<script type="text/javascript" src="StackBlur.js"></script>
+<script type="text/javascript" src="canvg.js"></script> 
+<script type="text/javascript" src="raphael-ggorgchart.js"></script>  
+<script type="text/javascript" src="lib_gg_orgchart_v100b1.js"></script>
+<script type="text/javascript" src="drag-on.js"></script>
+<script type="text/javascript" src="jsrender.js"></script>
+
+<script type="text/javascript">
+
+    // these values define only a subset of options for the organizational chart look & feel
+    // look into the library code for the default values for each parameter, that are used if not defined here
+    // "box_click_handler" will not work if we set "box_html_template", so we assigns it the null value
+    //
+    var oc_options_1 = {
+        data_id           : 1,                    // identifies the ID of the "data" JSON object that is paired with these options
+        container         : 'oc_container_1',     // name of the DIV where the chart will be drawn
+        box_color         : '#aaf',               // fill color of boxes
+        box_color_hover   : '#faa',               // fill color of boxes when mouse is over them
+        box_border_color  : '#008',               // stroke color of boxes
+        box_html_template : null,                 // id of element with template; don't use if you are using the box_click_handler
+        line_color        : '#f44',               // color of connectors
+        title_color       : '#000',               // color of titles
+        subtitle_color    : '#707',               // color of subtitles
+        max_text_width    : 20,                   // max width (in chars) of each line of text ('0' for no limit)
+        text_font         : 'Courier',            // font family to use (should be monospaced)
+        use_images        : false,                // use images within boxes?
+        box_click_handler : oc_box_click_handler, // handler (function) called on click on boxes (set to null if no handler)
+        debug             : false                 // set to true if you want to debug the library
+    };
+
+    // handler for clicks on nodes
+    // this is completely configurable by you
+    //
+    function oc_box_click_handler(event, box) {
+        if (box.oc_id !== undefined) {
+            alert('clicked on node with ID = ' + box.oc_id + '; type = ' + box.oc_node.type);
+        }
+    }
+
+    // load the JSON that defines the organizational structure from an external file and inmediatelly render the chart
+    // this is an important modification to the 0.4 version of the library; now is imperative to load the JSON from an external file
+    // inside the JSON, the "type" attribute for nodes can be: "subordinate", "staff" or "collateral"
+    // you can also use the "subtype" attribute for "dashed" nodes (use "subtype:dashed")
+    // look the examples and get used to the organizational structure representation
+    //
+    // IMPORTANT NOTE: because the JSON containing the organizational chart hierarchy is loaded using JQuery (that uses AJAX),
+    // this library will work only by loading the JSON from an http server (and not by opening a local file in your browser)
+    // the advantage are: separating data and logic, and capability of generating a dynamic JSON from a database (ex. with PHP)
+    //
+    // now render four versions of the same orgchart; the first one will use zoom, drag and print to PDF
+    // modify this function as you want; normally there is no need to draw more than one chart in each web page
+    //
+    var merged_options = false;
+    //
+    function ggOrgChart_render ()
+    {
+        var result;
+        result = ggOrgChart.render(oc_options_1, "demo-policia.json");
+        if (result === false) { alert("INFO: render() failed (bad 'options' or 'data' definition)"); return; }
+    }
+
+    // WINDOW.ONLOAD TASKS
+    // put here all the task that should be done when the page finish to load
+    //
+    window.onload = function () {
+        ggOrgChart_render();        
+    } ;
+
+    // styles used by the chart rendering
+    //
+    </script>
+
+    <style>
+        .body            { margin: 10px; padding: 0; }
+        .text            { font-family: sans-serif; color: blue; text-align: left; }
+        .chart_container { margin-left: auto; margin-right: auto; position: relative; width: 100%; }
+    </style>
+
+</head>
+
+<body class="body">
+
+    <script type="text/javascript">
+    //
+    // in order to center the chart in the webpage, you can take two approaches:
+    // - use the style as above (.container) in order to define the relative width of the container
+    //   note that that width have to be adjusted by hand case-by-case and take in mind this depends of the browser window
+    // - use an IFRAME containing the chart inside a main webpage, with scrollbars as needed
+    //   this seems to be the preferred way but is not implemented yet
+    // we welcome any other way of centering the chart (without using zoom and drag)
+    //
+    </script>
+
+    <!--div-->
+
+        <div class="text">
+        <h1>Organizational Chart Demo (1)</h1>
+        <p>This is our first example. A medium-size organization is shown. The organizational structure is represented
+           by a JSON file that reside in the web server and is requested via AJAX. So, in this version de library, the
+           data and the software logic are separated. This is an advantage because you can render "changing" charts
+           if you implement a program (lets say, a PHP script) that reads from the database and build the JSON on-the-fly.
+           But the JSON file is served by an HTTP server, so you can not work locally with the library
+           (solve this by installing a "localhost" LAMP/WAMP server in your PC).
+           This entry-level graph shows some features: first, the distribution of the boxes is automatic. If you want,
+           for example, "Informatica" to be below "Consultoria Juridica" and "Inteligencia" on the right side, 
+           invert these nodes in the JSON file. Second, the "hover" behaviour is shown, but a click does nothing,
+           because the "id" attribute is not assigned to the boxes (with the exception of "Inteligencia"; try it).
+           Third, there is a "dashed" node; this feature is useful for non-permanent organizational units, like a project office.
+        </div>
+
+
+        <hr/>
+        <h3><span class="text">Rendering</span></h3>
+        <p class="text">(See the JSON code <a href="demo-policia.json" target="_blanck">here</a>)</p>
+        <div id="oc_container_1" class="chart_container"></div>
+
+        <hr/>
+        <h3><span class="text">End of rendering</span></h3>
+        <p class="text"><a target="_blank" href="http://librerias.logicas.org/lib_gg_orgchart/">lib_gg_orgchart v1.0.0beta1</a> -
+           by <a target="_blank" href="http://desarrolladores.logicos.org/gorka/">Gorka G LLona</a> and collaborators - 
+           distributed under the LGPL GNU license</p>
+
+    <!--/div-->
+
+</body>
+
+</html>

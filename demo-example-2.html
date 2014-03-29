@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<title>lib_ggOrgChart v1.0.0beta1 example 2</title>
+
+<script type='text/javascript' src="jquery-1.9.1.js"></script>
+<script type="text/javascript" src="jspdf-ggorgchart.js" ></script>
+<script type="text/javascript" src="rgbcolor.js"></script> 
+<script type="text/javascript" src="StackBlur.js"></script>
+<script type="text/javascript" src="canvg.js"></script> 
+<script type="text/javascript" src="raphael-ggorgchart.js"></script>  
+<script type="text/javascript" src="lib_gg_orgchart_v100b1.js"></script>
+<script type="text/javascript" src="drag-on.js"></script>
+<script type="text/javascript" src="jsrender.js"></script>
+
+<script type="text/javascript">
+
+    // these values define the full of options of the organizational chart look & feel
+    // look into the library code for the default values for each parameter
+    // note that "box_html_template" is not assigned to "null"; see below for explanation
+    //
+    var oc_options_1 = {
+        data_id              : 1,                    // identifies the ID of the "data" JSON object that is paired with these options
+        container            : 'oc_container_1',     // name of the DIV where the chart will be drawn
+        vline                : 15,                   // size of the smallest vertical line of connectors
+        hline                : 20,                   // size of the smallest horizontal line of connectors
+        xoffset              : 0,                    // inital x-offset of diagram (can be negative)
+        yoffset              : -1,                   // inital y-offset of diagram (can be negative)
+        inner_padding        : 12,                   // space from text to box border
+        box_color            : '#dcdede',            // fill color of boxes
+        box_color_hover      : '#E9FDF7',            // fill color of boxes when mouse is over them
+        box_border_color     : '#d5c68e',            // stroke color of boxes
+        box_border_radius    : 8,                    // border radius of boxes in pixels
+        box_border_width     : 2,                    // border with of boxes in pixels
+        box_fix_width        : null,                 // set fix width for boxes in pixels
+        box_fix_height       : null,                 // set fix height for boxes in pixels
+        box_root_node_width  : null,                 // override fix width and max text width
+        box_root_node_height : null,                 // override fix height and size defined by text length
+        box_html_template    : 'oc_template_1',      // id of element with template; depends on jsrender and jQuery libraries!
+        line_color           : '#928686',            // color of connectors
+        title_color          : '#3A87AD',            // color of titles
+        subtitle_color       : '#928686',            // color of subtitles
+        title_font_size      : 12,                   // size of font used for displaying titles inside boxes
+        subtitle_font_size   : 10,                   // size of font used for displaying subtitles inside boxes
+        title_char_size      : [6, 12],              // size (x, y) of a char of the font used for displaying titles
+        subtitle_char_size   : [5, 10],              // size (x, y) of a char of the font used for displaying subtitles
+        max_text_width       : 0,                    // max width (in chars) of each line of text ('0' for no limit)
+        text_font            : 'Courier',            // font family to use (should be monospaced)
+        use_images           : false,                // use images within boxes?
+        images_base_url      : './images/',          // base url of the images to be embeeded in boxes, with a trailing slash
+        images_size          : [160, 160],           // size (x, y) of the images to be embeeded in boxes
+        box_click_handler    : oc_box_click_handler, // handler (function) called on click on boxes (set to null if no handler)
+        use_zoom_print       : false,                // wheter to use zoom and print or not (only one graph per web page can do so)
+        debug                : false                 // set to true if you want to debug the library
+    };
+
+    // these values define only a subset of options for the organizational chart look & feel
+    // look into the library code for the default values for each parameter, that are used if not defined here
+    // "box_click_handler" will not work if we set "box_html_template", so we assigns it the null value
+    //
+    var oc_options_2 = {
+        data_id           : 1,                    // identifies the ID of the "data" JSON object that is paired with these options
+        container         : 'oc_container_2',     // name of the DIV where the chart will be drawn
+        box_color         : '#aaf',               // fill color of boxes
+        box_color_hover   : '#faa',               // fill color of boxes when mouse is over them
+        box_border_color  : '#008',               // stroke color of boxes
+        box_html_template : null,                 // id of element with template; don't use if you are using the box_click_handler
+        line_color        : '#f44',               // color of connectors
+        title_color       : '#000',               // color of titles
+        subtitle_color    : '#707',               // color of subtitles
+        max_text_width    : 20,                   // max width (in chars) of each line of text ('0' for no limit)
+        text_font         : 'Courier',            // font family to use (should be monospaced)
+        use_images        : false,                // use images within boxes?
+        box_click_handler : oc_box_click_handler, // handler (function) called on click on boxes (set to null if no handler)
+        use_zoom_print    : false,                // wheter to use zoom and print or not (only one graph per web page can do so)
+        debug             : false                 // set to true if you want to debug the library
+    };
+
+    // these values define only minimal options for the organizational chart look & feel
+    // look into the library code for the default values for each parameter that will be used
+    // 
+    var oc_options_3 = {
+        data_id           : 1,                   // identifies the ID of the "data" JSON object that is paired with these options
+        container         : 'oc_container_3',    // name of the DIV where the chart will be drawn
+        box_click_handler : oc_box_click_handler // handler (function) called on click on boxes (set to null if no handler)
+    };
+
+    // these values define only minimal options for the organizational chart look & feel
+    // some additional parameters are included for testing zoom, drag and print features
+    // 
+    var oc_options_4 = {
+        data_id           : 2,                       // identifies the ID of the "data" JSON object that is paired with these options
+        container         : 'oc_container_4',        // name of the DIV where the chart will be drawn
+        max_text_width    : 20,                      // max width (in chars) of each line of text ('0' for no limit)
+        box_click_handler : oc_box_click_handler,    // handler (function) called on click on boxes (set to null if no handler)
+        use_zoom_print    : true,                    // wheter to use zoom and print or not (only one graph per web page can do so)
+        container_supra   : 'oc_supracontainer_4',   // container of the container (DIV); needed for zoom and print
+        initial_zoom      : 0.75,                    // initial zoom
+        pdf_canvas        : 'oc_print_canvas_4',     // name of the invisible HTML5 canvas needed for print
+        pdf_canvas_width  : 800,                     // size of the container (X axis)
+        pdf_canvas_height : 480,                     // size of the container (Y axis)
+        pdf_filename      : 'orgChart.pdf'           // default filename for PDF printing
+    };
+
+    // handler for clicks on nodes
+    // this is completely configurable by you
+    // here are two examples: showing an alert with the ID and type of the node, or invking a "mailto:" URI
+    //
+    var howToWork = "alert";
+    // var howToWork = "email"; 
+    //
+    function oc_box_click_handler(event, box) {
+        if (box.oc_id !== undefined) {
+            if (howToWork == "alert") {
+                alert('clicked on node with ID = ' + box.oc_id + '; type = ' + box.oc_node.type);
+            } else if (howToWork == "email") {
+                check_for_email(box.oc_id);
+            }
+        }
+    }
+
+    // OPTIONAL (see above and below)
+    // this function checks for emails associated with each node
+    // if the email is defined for the node, then this will trigger a "mailto:" URI
+    // in my tests, when using Chrome, this fails; Firefox is working well (this is an issue documented in the Chrome wiki)
+    // note that this feature doesn't depends of the library; it's implemented completely in this HTML file
+    //
+    function check_for_email (node_id) {
+        var email = null;
+        for (var i = 0; i < emails.length; i++) {
+            var tocheck = emails[i];
+            if (tocheck.id == node_id) {
+                email = tocheck.email;
+                break;
+            }
+        }
+        if (email !== null) {
+            window.location.href = "mailto:" + email;
+        }
+    }
+
+    // OPTIONAL (see above)
+    // repository for all the email addresses associated with each node ID
+    //
+    var emails = [
+        { id : 'foc' , email : 'foc@domain.com' },
+        { id : 'fam' , email : 'fam@domain.com' },
+        { id : 'fnt' , email : 'fnt@domain.com' },
+        { id : 'ftg' , email : 'ftg@domain.com' }
+    ];
+
+    // OPTIONAL JS templating mechanism for rendering the nodes, according to oc_options_1
+    // if you want to:
+    // - use subtitles      : set to: <div>{{>title}}<br/><span>{{>subtitle}}</span></div>
+    // - don't use subtitles: set to: <div>{{>title}}</div>
+    // take into account that if you use this method, the the rendering in Firefox can be garbled
+    // in this case, it's better assign "null" to the property "box_html_template" in the options object
+    //
+    </script>
+    <script id="oc_template_1" type="text/x-jsrender">
+        <div class="node">
+            {{>title}}<br/>{{>subtitle}}
+        </div>
+    </script>
+    <script type="text/javascript">
+
+    // OPTIONAL style block that is used by the rendering method; you can customize it
+    // this is an add-to to the defined options for the graph
+    // these styles override the settings of oc_options, so take care with the text styles (fonts, sizes, etc)
+    // currently this form of rendering doesn't allow processing of events attached to nodes
+    //
+    </script>
+    <style>
+        .node              { padding-top: 4px; text-align: center; font-size: 13px; }
+        .node:first-letter { font-weight: bold; }
+    </style>
+
+    <script type="text/javascript">
+
+    // load the JSON that defines the organizational structure from an external file and inmediatelly render the chart
+    // this is an important modification to the 0.4 version of the library; now is imperative to load the JSON from an external file
+    // inside the JSON, the "type" attribute for nodes can be: "subordinate", "staff" or "collateral"
+    // you can also use the "subtype" attribute for "dashed" nodes (use "subtype:dashed")
+    // look the examples and get used to the organizational structure representation
+    //
+    // IMPORTANT NOTE: because the JSON containing the organizational chart hierarchy is loaded using JQuery (that uses AJAX),
+    // this library will work only by loading the JSON from an http server (and not by opening a local file in your browser)
+    // the advantage are: separating data and logic, and capability of generating a dynamic JSON from a database (ex. with PHP)
+    //
+    // now render four versions of the same orgchart; the first one will use zoom, drag and print to PDF
+    // modify this function as you want; normally there is no need to draw more than one chart in each web page
+    //
+    var merged_options = false;
+    //
+    function ggOrgChart_render ()
+    {
+        var result;
+
+        // FOURTH PLACE: use zoom, drag and print on a complex organizational chart
+        // in order to the "print" feature to work, the rendering should be called before others
+        // note, however, that we position ths rendering at the bottom of the web page, so it's a flexible mechanism
+        // the "merged_options" variable is needed in order to zoom, drag and zoom to work; see below the respective handlers
+        result = ggOrgChart.render(oc_options_4, "demo-ministerio-anonymous.json");
+        if (result === false) { alert("INFO: render() #4 failed (bad 'options' or 'data' definition)"); return; }
+        else { merged_options = result; }
+
+        // FIRST PLACE: use the "options_1" configurations set with other organizational structure
+        result = ggOrgChart.render(oc_options_1, "demo-congregacion-anonymous.json");
+        if (result === false) { alert("INFO: render() #1 failed (bad 'options' or 'data' definition)"); return; }
+
+        // SECOND PLACE: use another configs set and reuse the previuos "data" for avoiding repeating the JSON file to load
+        // result = ggOrgChart.render(oc_options_2, "demo-congregacion.json");
+        result = ggOrgChart.render(oc_options_2, null);
+        if (result === false) { alert("INFO: render() #2 failed (bad 'options' or 'data' definition)"); return; }
+
+        // THIRD PLACE: use another configs set with the same data as examples #1 and #2
+        // result = ggOrgChart.render(oc_options_3, "demo-congregacion.json");
+        result = ggOrgChart.render(oc_options_3, null);
+        if (result === false) { alert("INFO: render() #3 failed (bad 'options' or 'data' definition)"); return; }
+    }
+
+    // WINDOW.ONLOAD TASKS
+    // put here all the task that should be done when the page finish to load
+    // also put here handlers for buttons (like zoom and print), etc.
+    //
+    window.onload = function () {
+
+        // call the function 'ggOrgChart_render()' defined in this page (just above)
+        //
+        ggOrgChart_render();        
+
+        $("#oc_btnZommIn").click( function () {
+            ggOrgChart.zoom_in(merged_options);
+        } );
+
+        $("#oc_btnZommOut").click( function () {
+            ggOrgChart.zoom_out(merged_options);
+        } );
+
+        $("#oc_btnPrint").click( function () {
+            ggOrgChart.print(merged_options);
+        } );
+
+    } ;
+
+    //
+    // styles used by the chart rendering (first block) and zoom, drag and print features (second block)
+    //
+    </script>
+
+    <style>
+        .body            { margin: 10px; padding: 0; }
+        .text            { font-family: sans-serif; color: blue; text-align: left; }
+        .chart_container { margin-left: auto; margin-right: auto; position: relative; width: 70%; }
+        #oc_supracontainer_4 {
+            position : absolute;
+            width    : 800px;
+            height   : 480px;
+            border   : solid 1px #333333;
+            overflow : hidden;
+        }
+        #oc_content_dragonfly {
+            margin-left : 8px;
+        }
+    </style>
+
+</head>
+
+<body class="body">
+
+    <script type="text/javascript">
+    //
+    // in order to center the chart in the webpage, you can take two approaches:
+    // - use the style as above (.container) in order to define the relative width of the container
+    //   note that that width have to be adjusted by hand case-by-case and take in mind this depends of the browser window
+    // - use an IFRAME containing the chart inside a main webpage, with scrollbars as needed
+    //   this seems to be the preferred way but is not implemented yet
+    // we welcome any other way of centering the chart (without using zoom and drag)
+    //
+    </script>
+
+    <!--div-->
+
+        <div class="text">
+        <h1>Organizational Chart Demo (2)</h1>
+        <p>This example shows some features of this library. First, the capability of rendering multiple charts in the same page.
+           You can see in the code that the JSON file containing the organizational structure is queried from the web server only once (this optimizes the library response time).
+           Shown first are three forms of rendering the same chart; they correspond to different stylish "options".
+           The fourth chart is different from the others; it shows a very wide chart that can't be displayed in the web page,
+           so we use here the capability for zoom, drag and print to PDF. Some nodes have a different render style;
+           they have a "subtype:dashed" in the JSON specification. All the boxes responses to the click event.
+           This event can be changed easily in the client code; look inside this web page, enable the "mailto:"
+           feature and try it.</p>
+        </div>
+
+
+        <hr/>
+        <h3><span class="text">Rendering #1</span></h3>
+        <p class="text">(See the JSON code <a href="demo-congregacion-anonymous.json" target="_blanck">here</a>)</p>
+        <div id="oc_container_1" class="chart_container"></div>
+
+        <hr/>
+        <h3><span class="text">Rendering #2</span></h3>
+        <div id="oc_container_2" class="chart_container"></div>
+
+        <hr/>
+        <h3><span class="text">Rendering #3</span></h3>
+        <div id="oc_container_3" class="chart_container"></div>
+
+        <hr/>
+        <h3><span class="text">Rendering #4</span></h3>
+        <p class="text">(See the JSON code <a href="demo-ministerio-anonymous.json" target="_blanck">here</a>)</p>
+        <div class="chart_container">
+        <div>
+            <button id="oc_btnZommIn">Zoom in</button>
+            <button id="oc_btnZommOut">Zoom out</button>
+            <button id="oc_btnPrint">Print</button>
+        </div>
+        <div id="oc_supracontainer_4">
+            <div id="oc_content_dragonfly" class="dragon">
+                <div id="oc_container_4"></div>
+            </div>
+        </div>
+        <canvas id="oc_print_canvas_4"></canvas>
+        </div>
+
+        <hr style="margin-top: 520px;" />
+        <h3><span class="text">End of rendering</span></h3>
+        <p class="text"><a target="_blank" href="http://librerias.logicas.org/lib_gg_orgchart/">lib_gg_orgchart v1.0.0beta1</a> -
+           by <a target="_blank" href="http://desarrolladores.logicos.org/gorka/">Gorka G LLona</a> and collaborators - 
+           distributed under the LGPL GNU license</p>
+
+    <!--/div-->
+
+</body>
+
+</html>
