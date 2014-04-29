@@ -1128,6 +1128,9 @@ var oc_zdp_width,
             }
             var event_box_color_hover = node.subtype == 'dashed' ? options.dashed_box_color_hover : options.box_color_hover;
             var event_box_color       = node.subtype == 'dashed' ? options.dashed_box_color       : options.box_color;
+
+            var title;
+            var subtitle;
             // attach events to rectangle
             if (box.visible === true) {
                 box.hover(
@@ -1146,7 +1149,7 @@ var oc_zdp_width,
                     (typeof node.image_position != "undefined" && node.image_position == "above")) {   // text below image
                     title_ypos += options.images_size[1] + options.inner_padding;
                 }
-                var title = options.oc_paper.text(xc, title_ypos, node.title);
+                title = options.oc_paper.text(xc, title_ypos, node.title);
                 title.attr('font-family', options.text_font);
                 title.attr('font-size', options.title_font_size);
                 title.attr('fill', options.title_color);
@@ -1159,11 +1162,14 @@ var oc_zdp_width,
                         (typeof node.image_position != "undefined" && node.image_position == "above")) {   // text below image
                         subtitle_ypos += options.images_size[1] + options.inner_padding;
                     }
-                    var subtitle = options.oc_paper.text(xc, subtitle_ypos, node.subtitle);
+                    subtitle = options.oc_paper.text(xc, subtitle_ypos, node.subtitle);
                     subtitle.attr('font-family', options.text_font);
                     subtitle.attr('font-size', options.subtitle_font_size);
                     subtitle.attr('fill', options.subtitle_color);
                 }
+            }
+            if (typeof options.box_finished_callback == "function") {
+                options.box_finished_callback(box, title, subtitle, image);
             }
         }
 
