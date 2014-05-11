@@ -456,7 +456,13 @@ var oc_zdp_width,
         str = str.replace(/Í/g, 'I');
         str = str.replace(/Ó/g, 'O');
         str = str.replace(/Ú/g, 'U');
-        str = str.replace(/Ü/g, 'U');
+        str = str.replace(/Ä/g, 'Ae');
+        str = str.replace(/ä/g, 'ae');
+        str = str.replace(/Ö/g, 'Oe');
+        str = str.replace(/ö/g, 'oe');
+        str = str.replace(/Ü/g, 'Ue');
+        str = str.replace(/ü/g, 'ue');
+        str = str.replace(/ß/g, 'ss');
         str = str.replace(/ñ/g, 'n');
         str = str.replace(/Ñ/g, 'N');
         return str;
