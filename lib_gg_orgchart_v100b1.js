@@ -174,6 +174,7 @@ var oc_zdp_width,
         subtitle_char_size: [5, 10],          // size (x, y) of a char of the font used for displaying subtitles
         max_text_width: 0,                    // max width (in chars) of each line of text ('0' for no limit)
         text_font: 'Lucida Console, Courier', // font family to use (should be monospaced)
+        delete_special_chars: true,           // special characters like umlauts are removed from all strings (e.g. title and subtitle)
         use_images: false,                    // use images within boxes?
         images_base_url: './images/',         // base url of the images to be embeeded in boxes, with a trailing slash
         images_size: [160, 160],              // size (x, y) of the images to be embeeded inside boxes
@@ -370,7 +371,9 @@ var oc_zdp_width,
     function oc_calc (options, data) 
     {
         oc_text_limit(options, data.root);
-        oc_delete_special_chars(data.root);
+        if (options.delete_special_chars) {
+            oc_delete_special_chars(data.root);
+        }
         oc_text_dimensions(options, data.root);
         data.root.is_root = true;
         oc_boundboxes_dimensions(options, data.root);
