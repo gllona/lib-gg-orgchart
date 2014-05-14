@@ -173,6 +173,7 @@ var oc_zdp_width,
         subtitle_char_size: [5, 10],          // size (x, y) of a char of the font used for displaying subtitles
         max_text_width: 0,                    // max width (in chars) of each line of text ('0' for no limit)
         text_font: 'Lucida Console, Courier', // font family to use (should be monospaced)
+        delete_special_chars: true,           // special characters like umlauts are removed from all strings (e.g. title and subtitle)
         use_images: false,                    // use images within boxes?
         images_base_url: './images/',         // base url of the images to be embeeded in boxes, with a trailing slash
         images_size: [160, 160],              // size (x, y) of the images to be embeeded inside boxes
@@ -369,7 +370,9 @@ var oc_zdp_width,
     function oc_calc (options, data) 
     {
         oc_text_limit(options, data.root);
-        oc_delete_special_chars(data.root);
+        if (options.delete_special_chars) {
+            oc_delete_special_chars(data.root);
+        }
         oc_text_dimensions(options, data.root);
         data.root.is_root = true;
         oc_boundboxes_dimensions(options, data.root);
@@ -455,7 +458,13 @@ var oc_zdp_width,
         str = str.replace(/Í/g, 'I');
         str = str.replace(/Ó/g, 'O');
         str = str.replace(/Ú/g, 'U');
-        str = str.replace(/Ü/g, 'U');
+        str = str.replace(/Ä/g, 'Ae');
+        str = str.replace(/ä/g, 'ae');
+        str = str.replace(/Ö/g, 'Oe');
+        str = str.replace(/ö/g, 'oe');
+        str = str.replace(/Ü/g, 'Ue');
+        str = str.replace(/ü/g, 'ue');
+        str = str.replace(/ß/g, 'ss');
         str = str.replace(/ñ/g, 'n');
         str = str.replace(/Ñ/g, 'N');
         return str;
@@ -1127,6 +1136,9 @@ var oc_zdp_width,
             }
             var event_box_color_hover = node.subtype == 'dashed' ? options.dashed_box_color_hover : options.box_color_hover;
             var event_box_color       = node.subtype == 'dashed' ? options.dashed_box_color       : options.box_color;
+
+            var title;
+            var subtitle;
             // attach events to rectangle
             if (box.visible === true) {
                 box.hover(
@@ -1145,7 +1157,7 @@ var oc_zdp_width,
                     (typeof node.image_position != "undefined" && node.image_position == "above")) {   // text below image
                     title_ypos += options.images_size[1] + options.inner_padding;
                 }
-                var title = options.oc_paper.text(xc, title_ypos, node.title);
+                title = options.oc_paper.text(xc, title_ypos, node.title);
                 title.attr('font-family', options.text_font);
                 title.attr('font-size', options.title_font_size);
                 title.attr('fill', options.title_color);
@@ -1158,11 +1170,14 @@ var oc_zdp_width,
                         (typeof node.image_position != "undefined" && node.image_position == "above")) {   // text below image
                         subtitle_ypos += options.images_size[1] + options.inner_padding;
                     }
-                    var subtitle = options.oc_paper.text(xc, subtitle_ypos, node.subtitle);
+                    subtitle = options.oc_paper.text(xc, subtitle_ypos, node.subtitle);
                     subtitle.attr('font-family', options.text_font);
                     subtitle.attr('font-size', options.subtitle_font_size);
                     subtitle.attr('fill', options.subtitle_color);
                 }
+            }
+            if (typeof options.box_finished_callback == "function") {
+                options.box_finished_callback(box, title, subtitle, image);
             }
         }
 
