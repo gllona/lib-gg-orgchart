@@ -62,7 +62,6 @@ var oc_zdp_width,
     oc_zdp_height;
 
 
-
 // ENCAPSULATED PART OF THE LIBRARY
 
 
@@ -389,7 +388,7 @@ var oc_zdp_width,
             return;
         node.title = oc_text_limit_obj(options, node.title);
         node.subtitle = oc_text_limit_obj(options, node.subtitle);
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             return;
         for (var i = 0; i < node.children.length; i++)
             oc_text_limit(options, node.children[i]);
@@ -431,7 +430,7 @@ var oc_zdp_width,
             return;
         node.title = oc_delete_special_chars_obj(node.title);
         node.subtitle = oc_delete_special_chars_obj(node.subtitle);
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             return;
         for (var i = 0; i < node.children.length; i++)
             oc_delete_special_chars(node.children[i]);
@@ -508,7 +507,7 @@ var oc_zdp_width,
         }
 
         // traverse children
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             return;
         for (var i = 0; i < node.children.length; i++)
             oc_text_dimensions(options, node.children[i]);
@@ -562,7 +561,7 @@ var oc_zdp_width,
 
         // invoke recursively,
         // but previously calc the indexes of children according with their role, reflecting the max in the node
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -645,13 +644,13 @@ var oc_zdp_width,
         //
         node.hasOnlyStaffs = true;
         node.fullbbox = oc_clone(node.boundbox);
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             node.xoffset = 0;
         // 1. collateral children
         var collateral_left_width = node.boundbox[0] / 2;
         var collateral_right_width = node.boundbox[0] / 2;
         var collateral_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -673,7 +672,7 @@ var oc_zdp_width,
         var staff_left_width = 0;
         var staff_right_width = 0;
         var staff_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -700,7 +699,7 @@ var oc_zdp_width,
         staff_left_width = 0;
         staff_right_width = 0;
         var stafftop_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -719,7 +718,7 @@ var oc_zdp_width,
         staff_left_width = 0;
         staff_right_width = 0;
         staff_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -733,7 +732,7 @@ var oc_zdp_width,
         }
         // 5. subordinate children
         var subordinate_full_width = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -759,7 +758,7 @@ var oc_zdp_width,
 
         // now calc this node fullbbox, and deltacorner of children
         // 1. collateral children
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -785,7 +784,7 @@ var oc_zdp_width,
         var staff_height_left  = 0;
         var staff_height_right = 0;
         staff_height           = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             var staffCountForThisNode = 0;
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
@@ -811,7 +810,7 @@ var oc_zdp_width,
             }
         }
         // 3. stafftop children
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             var stafftop_count = 0;
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
@@ -828,7 +827,7 @@ var oc_zdp_width,
             }
         }
         // 4. staffleft children
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -846,7 +845,7 @@ var oc_zdp_width,
         var incremental_width = 0;
         var diff_width = left_width - subordinate_full_width / 2;
         if (diff_width < 0) diff_width = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -873,7 +872,7 @@ var oc_zdp_width,
         // - then enlarge their respective fullbboxes
         //
         var this_horizontalGrowts = [0, 0];
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             var pt1, pt2;
             // left side
             for (i = 0; i < node.children.length; i++) {
@@ -901,7 +900,7 @@ var oc_zdp_width,
         // because the above pathh (left case) apply displacements in all its brothers to the right
         //
         var new_horizontalGrowts = [0, 0];
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 new_horizontalGrowts = oc_update_fullbbox(options, node, child);
@@ -920,7 +919,7 @@ var oc_zdp_width,
         // debug
         //
         if (options.debug) {
-            if (typeof node.children != "undefined") {
+            if (oc_check_children(node.children)) {
                 for (i = 0; i < node.children.length; i++) {
                     child = node.children[i];
                     console.log('oc_boundboxes_dimensions [' + child.title + '] ' +
@@ -984,7 +983,7 @@ var oc_zdp_width,
 
         // draw children
         //
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (var i = 0; i < node.children.length; i++) {
                 oc_draw_obj(options,
                             node.children[i],
@@ -1296,7 +1295,21 @@ var oc_zdp_width,
         pdf_document.save(options.pdf_filename);
     }
 
-
+	function oc_check_children(list) {
+		if (typeof list == "undefined") {
+			return false;
+		}
+		if (list == null) {
+			return false;
+		}
+		if (list == undefined || list == "undefined") {
+			return false;
+		}
+		if (list.length == 0) {
+			return false;
+		}
+		return true;		
+	}
 
 } ) (window);
 
