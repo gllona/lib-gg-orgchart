@@ -88,8 +88,6 @@ var oc_zdp_width,
 
     window.ggOrgChart = {
 
-
-
         // call this function in order to render a chart where the data comes from an external JSON file
         // if "this_json_file" (filename) is "null", then use the library will use a previously loaded JSON file
         // this is useful when rendering the same data with different options (and containers)
@@ -142,6 +140,14 @@ var oc_zdp_width,
             oc_print(options);
         },
 
+
+
+        // Allows adding data to the data_heap from outside so that the AJAX requests
+        // for fetching the data are optional.
+        //
+        pushToDataArray: function(data) {
+            data_heap.push(data);
+        }
     } ;
 
 
