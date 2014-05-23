@@ -235,7 +235,7 @@ var oc_zdp_width,
         // iterate on the identified OPTIONS (all of them with ".data"), and initiate the rendering for each ono
         // this process is not asynchronous
         for (i = 0; i < options_to_process.length; i++) {
-            this_options = options_heap[i];
+            this_options = options_to_process[i];
             oc_render_start_drawing(this_options);
         }
 
