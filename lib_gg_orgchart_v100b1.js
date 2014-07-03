@@ -178,6 +178,7 @@ var oc_zdp_width,
         subtitle_font_size: 10,               // size of font used for displaying subtitles inside boxes
         title_char_size: [7, 12.5],           // size (x, y) of a char of the font used for displaying titles
         subtitle_char_size: [5, 10],          // size (x, y) of a char of the font used for displaying subtitles
+        subtitle_align_bottom: true,
         max_text_width: 0,                    // max width (in chars) of each line of text ('0' for no limit)
         text_font: 'Lucida Console, Courier', // font family to use (should be monospaced)
         delete_special_chars: true,           // special characters like umlauts are removed from all strings (e.g. title and subtitle)
@@ -1169,8 +1170,14 @@ var oc_zdp_width,
                 title.attr('font-size', options.title_font_size);
                 title.attr('fill', options.title_color);
                 if (typeof node.subtitle != "undefined") {
-                    var subtitle_ypos = nY1 - options.inner_padding
-                        - node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    if (options.subtitle_align_bottom) {
+                        var subtitle_ypos = nY1 - options.inner_padding
+                            - node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    }
+                    else {
+                        var subtitle_ypos = title_ypos + node.title_lines * options.title_char_size[1] / 2
+                            + node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    }
                     if (options.use_images && typeof node.image != "undefined")
                         subtitle_ypos -= options.images_size[1] + options.inner_padding;
                     if ((options.use_images && typeof node.image != "undefined") &&
