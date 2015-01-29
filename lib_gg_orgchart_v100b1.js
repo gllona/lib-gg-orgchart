@@ -31,6 +31,8 @@
 * v.0.4.4 beta 5 (2014.03.17, GG): (N/R) completes zoom and print, allows multiples renders per web page
 * v.0.4.4 beta 6 (2014.03.17, GG): (N/R) full encapsulation, new and simplifyed library syntax for calling and rendering
 * v.1.0.0 beta 1 (2014.03.20, GG): integration of 0.4.4 beta series :: major release, first 1.x version number
+* 
+* v.1.0.0-dev (ecomerc) : Added callback, better child detection, and dynamic height for nodes.
 *
 * Contributors (in order of appearance):
 * GG :: Gorka G LLONA
@@ -161,6 +163,7 @@ var oc_zdp_width,
         box_border_width: 2,                  // border with of boxes in pixels
         box_fix_width: null,                  // set fix width for boxes in pixels
         box_fix_height: null,                 // set fix height for boxes in pixels
+        box_min_height: null,
         box_root_node_width: null,            // override fix width and max text width
         box_root_node_height: null,           // override fix height and size defined by text length
         box_html_template: null,              // id of element with template; Depends on jsrender and jQuery libraries!
@@ -190,6 +193,7 @@ var oc_zdp_width,
         pdf_canvas_width: 800,                // size of the container (X axis) (must be identic as the supracointainer DIV)
         pdf_canvas_height: 600,               // size of the container (Y axis) (must be identic as the supracointainer DIV)
         pdf_filename: 'orgChart.pdf',         // default filename for PDF printing
+        load_complete_callback: null,
         // here finish the new parameters
         debug: false                          // set to true if you want to debug the library
     } ;
@@ -307,6 +311,9 @@ var oc_zdp_width,
         oc_draw(options, options.data);
         if (options.use_zoom_print === true) {
             oc_zoom_print_prepare(options);
+        }
+        if (options.load_complete_callback) {
+            options.load_complete_callback();
         }
     }
 
@@ -485,6 +492,7 @@ var oc_zdp_width,
 
         // check title dimensions
         dimensions_title = oc_text_dimensions_obj(node.title, options.title_char_size);
+        node.dimensions = dimensions_title;
         node.title_lines = dimensions_title[2];
         if (node.title_lines > options.oc_max_title_lines)
             options.oc_max_title_lines = node.title_lines;
@@ -492,6 +500,9 @@ var oc_zdp_width,
         // check subtitle dimensions
         if (typeof node.subtitle != "undefined") {
             dimensions_subtitle = oc_text_dimensions_obj(node.subtitle, options.subtitle_char_size);
+            node.dimensions[0] += dimensions_subtitle[0];
+            node.dimensions[1] += dimensions_subtitle[1];
+
             node.subtitle_lines = dimensions_subtitle[2];
             if (node.subtitle_lines > options.oc_max_subtitle_lines)
                 options.oc_max_subtitle_lines = node.subtitle_lines;
@@ -594,9 +605,14 @@ var oc_zdp_width,
         // now each child have: parent, indexes, boundbox, deltacenter, fullbbox, deltacorner and xoffset
         // now calc this node boundbox and deltacenter
         //
+        var height = options.oc_max_text_width;
+        if (options.box_min_height) {
+            height = Math.max(options.box_min_height, node.dimensions[1]);
+        }
+
         node.boundbox = [
             options.oc_max_text_width  + 2 * options.inner_padding,
-            options.oc_max_text_height + 2 * options.inner_padding
+            height + 2 * options.inner_padding
         ];
         if (node.is_root) {
             if (options.box_root_node_width)
@@ -1248,7 +1264,7 @@ var oc_zdp_width,
     // prepare scale, zoom and print
     //
     function oc_zoom_print_prepare (options) {
-        $('#'+options.pdf_canvas).hide();
+        //$('#'+options.pdf_canvas).hide();
         options.oc_zdp_zoom            = options.initial_zoom;
         oc_zdp_width                   = $("svg").width();
         oc_zdp_height                  = $("svg").height();
@@ -1256,11 +1272,11 @@ var oc_zdp_width,
         options.oc_zdp_height_internal = oc_zdp_height;
         oc_zdp_width                  *= 0.76;
         oc_zdp_height                 *= 0.76;
-        $("#"+options.container_supra).scrollLeft(options.oc_zdp_width_internal * options.oc_zdp_zoom / 2 - options.pdf_canvas_width / 2);
-        $("#"+options.container).css('transform','scale('+options.oc_zdp_zoom+')');
-        $("#"+options.container).width (options.pdf_canvas_width  / (options.oc_zdp_width_internal  * 100) );
-        $("#"+options.container).height(options.pdf_canvas_height / (options.oc_zdp_height_internal * 100) );
-        $("svg").css('background','#FFFFFF');
+        //$("#"+options.container_supra).scrollLeft(options.oc_zdp_width_internal * options.oc_zdp_zoom / 2 - options.pdf_canvas_width / 2);
+        //$("#"+options.container).css('transform','scale('+options.oc_zdp_zoom+')');
+        //$("#"+options.container).width (options.pdf_canvas_width  / (options.oc_zdp_width_internal  * 100) );
+        //$("#"+options.container).height(options.pdf_canvas_height / (options.oc_zdp_height_internal * 100) );
+        //$("svg").css('background','#FFFFFF');
     }
 
 
@@ -1310,21 +1326,21 @@ var oc_zdp_width,
         pdf_document.save(options.pdf_filename);
     }
 
-	function oc_check_children(list) {
-		if (typeof list == "undefined") {
-			return false;
-		}
-		if (list == null) {
-			return false;
-		}
-		if (list == undefined || list == "undefined") {
-			return false;
-		}
-		if (list.length == 0) {
-			return false;
-		}
-		return true;		
-	}
+    function oc_check_children(list) {
+        if (typeof list == "undefined") {
+            return false;
+        }
+        if (list == null) {
+            return false;
+        }
+        if (list == undefined || list == "undefined") {
+            return false;
+        }
+        if (list.length == 0) {
+            return false;
+        }
+        return true;		
+    }
 
 } ) (window);
 
