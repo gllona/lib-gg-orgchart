@@ -31,6 +31,8 @@
 * v.0.4.4 beta 5 (2014.03.17, GG): (N/R) completes zoom and print, allows multiples renders per web page
 * v.0.4.4 beta 6 (2014.03.17, GG): (N/R) full encapsulation, new and simplifyed library syntax for calling and rendering
 * v.1.0.0 beta 1 (2014.03.20, GG): integration of 0.4.4 beta series :: major release, first 1.x version number
+* 
+* v.1.0.0-dev (ecomerc) : Added callback, better child detection, and dynamic height for nodes.
 *
 * Contributors (in order of appearance):
 * GG :: Gorka G LLONA
@@ -62,7 +64,6 @@ var oc_zdp_width,
     oc_zdp_height;
 
 
-
 // ENCAPSULATED PART OF THE LIBRARY
 
 
@@ -87,8 +88,6 @@ var oc_zdp_width,
 
 
     window.ggOrgChart = {
-
-
 
         // call this function in order to render a chart where the data comes from an external JSON file
         // if "this_json_file" (filename) is "null", then use the library will use a previously loaded JSON file
@@ -142,6 +141,14 @@ var oc_zdp_width,
             oc_print(options);
         },
 
+
+
+        // Allows adding data to the data_heap from outside so that the AJAX requests
+        // for fetching the data are optional.
+        //
+        pushToDataArray: function(data) {
+            data_heap.push(data);
+        }
     } ;
 
 
@@ -162,6 +169,7 @@ var oc_zdp_width,
         box_border_width: 2,                  // border with of boxes in pixels
         box_fix_width: null,                  // set fix width for boxes in pixels
         box_fix_height: null,                 // set fix height for boxes in pixels
+        box_min_height: null,
         box_root_node_width: null,            // override fix width and max text width
         box_root_node_height: null,           // override fix height and size defined by text length
         box_html_template: null,              // id of element with template; Depends on jsrender and jQuery libraries!
@@ -172,8 +180,10 @@ var oc_zdp_width,
         subtitle_font_size: 10,               // size of font used for displaying subtitles inside boxes
         title_char_size: [7, 12.5],           // size (x, y) of a char of the font used for displaying titles
         subtitle_char_size: [5, 10],          // size (x, y) of a char of the font used for displaying subtitles
+        subtitle_align_bottom: true,
         max_text_width: 0,                    // max width (in chars) of each line of text ('0' for no limit)
         text_font: 'Lucida Console, Courier', // font family to use (should be monospaced)
+        delete_special_chars: true,           // special characters like umlauts are removed from all strings (e.g. title and subtitle)
         use_images: false,                    // use images within boxes?
         images_base_url: './images/',         // base url of the images to be embeeded in boxes, with a trailing slash
         images_size: [160, 160],              // size (x, y) of the images to be embeeded inside boxes
@@ -190,6 +200,7 @@ var oc_zdp_width,
         pdf_canvas_width: 800,                // size of the container (X axis) (must be identic as the supracointainer DIV)
         pdf_canvas_height: 600,               // size of the container (Y axis) (must be identic as the supracointainer DIV)
         pdf_filename: 'orgChart.pdf',         // default filename for PDF printing
+        load_complete_callback: null,
         // here finish the new parameters
         debug: false                          // set to true if you want to debug the library
     } ;
@@ -234,7 +245,7 @@ var oc_zdp_width,
         // iterate on the identified OPTIONS (all of them with ".data"), and initiate the rendering for each ono
         // this process is not asynchronous
         for (i = 0; i < options_to_process.length; i++) {
-            this_options = options_heap[i];
+            this_options = options_to_process[i];
             oc_render_start_drawing(this_options);
         }
 
@@ -308,6 +319,9 @@ var oc_zdp_width,
         if (options.use_zoom_print === true) {
             oc_zoom_print_prepare(options);
         }
+        if (options.load_complete_callback) {
+            options.load_complete_callback();
+        }
     }
 
 
@@ -370,7 +384,9 @@ var oc_zdp_width,
     function oc_calc (options, data) 
     {
         oc_text_limit(options, data.root);
-        oc_delete_special_chars(data.root);
+        if (options.delete_special_chars) {
+            oc_delete_special_chars(data.root);
+        }
         oc_text_dimensions(options, data.root);
         data.root.is_root = true;
         oc_boundboxes_dimensions(options, data.root);
@@ -389,7 +405,7 @@ var oc_zdp_width,
             return;
         node.title = oc_text_limit_obj(options, node.title);
         node.subtitle = oc_text_limit_obj(options, node.subtitle);
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             return;
         for (var i = 0; i < node.children.length; i++)
             oc_text_limit(options, node.children[i]);
@@ -431,7 +447,7 @@ var oc_zdp_width,
             return;
         node.title = oc_delete_special_chars_obj(node.title);
         node.subtitle = oc_delete_special_chars_obj(node.subtitle);
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             return;
         for (var i = 0; i < node.children.length; i++)
             oc_delete_special_chars(node.children[i]);
@@ -456,7 +472,13 @@ var oc_zdp_width,
         str = str.replace(/Í/g, 'I');
         str = str.replace(/Ó/g, 'O');
         str = str.replace(/Ú/g, 'U');
-        str = str.replace(/Ü/g, 'U');
+        str = str.replace(/Ä/g, 'Ae');
+        str = str.replace(/ä/g, 'ae');
+        str = str.replace(/Ö/g, 'Oe');
+        str = str.replace(/ö/g, 'oe');
+        str = str.replace(/Ü/g, 'Ue');
+        str = str.replace(/ü/g, 'ue');
+        str = str.replace(/ß/g, 'ss');
         str = str.replace(/ñ/g, 'n');
         str = str.replace(/Ñ/g, 'N');
         return str;
@@ -477,6 +499,7 @@ var oc_zdp_width,
 
         // check title dimensions
         dimensions_title = oc_text_dimensions_obj(node.title, options.title_char_size);
+        node.dimensions = dimensions_title;
         node.title_lines = dimensions_title[2];
         if (node.title_lines > options.oc_max_title_lines)
             options.oc_max_title_lines = node.title_lines;
@@ -484,6 +507,9 @@ var oc_zdp_width,
         // check subtitle dimensions
         if (typeof node.subtitle != "undefined") {
             dimensions_subtitle = oc_text_dimensions_obj(node.subtitle, options.subtitle_char_size);
+            node.dimensions[0] += dimensions_subtitle[0];
+            node.dimensions[1] += dimensions_subtitle[1];
+
             node.subtitle_lines = dimensions_subtitle[2];
             if (node.subtitle_lines > options.oc_max_subtitle_lines)
                 options.oc_max_subtitle_lines = node.subtitle_lines;
@@ -508,7 +534,7 @@ var oc_zdp_width,
         }
 
         // traverse children
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             return;
         for (var i = 0; i < node.children.length; i++)
             oc_text_dimensions(options, node.children[i]);
@@ -562,7 +588,7 @@ var oc_zdp_width,
 
         // invoke recursively,
         // but previously calc the indexes of children according with their role, reflecting the max in the node
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -586,9 +612,14 @@ var oc_zdp_width,
         // now each child have: parent, indexes, boundbox, deltacenter, fullbbox, deltacorner and xoffset
         // now calc this node boundbox and deltacenter
         //
+        var height = options.oc_max_text_width;
+        if (options.box_min_height) {
+            height = Math.max(options.box_min_height, node.dimensions[1]);
+        }
+
         node.boundbox = [
             options.oc_max_text_width  + 2 * options.inner_padding,
-            options.oc_max_text_height + 2 * options.inner_padding
+            height + 2 * options.inner_padding
         ];
         if (node.is_root) {
             if (options.box_root_node_width)
@@ -645,13 +676,13 @@ var oc_zdp_width,
         //
         node.hasOnlyStaffs = true;
         node.fullbbox = oc_clone(node.boundbox);
-        if (typeof node.children == "undefined")
+        if (!oc_check_children(node.children))
             node.xoffset = 0;
         // 1. collateral children
         var collateral_left_width = node.boundbox[0] / 2;
         var collateral_right_width = node.boundbox[0] / 2;
         var collateral_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -673,7 +704,7 @@ var oc_zdp_width,
         var staff_left_width = 0;
         var staff_right_width = 0;
         var staff_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -700,7 +731,7 @@ var oc_zdp_width,
         staff_left_width = 0;
         staff_right_width = 0;
         var stafftop_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -719,7 +750,7 @@ var oc_zdp_width,
         staff_left_width = 0;
         staff_right_width = 0;
         staff_children = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -733,7 +764,7 @@ var oc_zdp_width,
         }
         // 5. subordinate children
         var subordinate_full_width = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -759,7 +790,7 @@ var oc_zdp_width,
 
         // now calc this node fullbbox, and deltacorner of children
         // 1. collateral children
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -785,7 +816,7 @@ var oc_zdp_width,
         var staff_height_left  = 0;
         var staff_height_right = 0;
         staff_height           = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             var staffCountForThisNode = 0;
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
@@ -811,7 +842,7 @@ var oc_zdp_width,
             }
         }
         // 3. stafftop children
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             var stafftop_count = 0;
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
@@ -828,7 +859,7 @@ var oc_zdp_width,
             }
         }
         // 4. staffleft children
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -846,7 +877,7 @@ var oc_zdp_width,
         var incremental_width = 0;
         var diff_width = left_width - subordinate_full_width / 2;
         if (diff_width < 0) diff_width = 0;
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 if (child === null)
@@ -873,7 +904,7 @@ var oc_zdp_width,
         // - then enlarge their respective fullbboxes
         //
         var this_horizontalGrowts = [0, 0];
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             var pt1, pt2;
             // left side
             for (i = 0; i < node.children.length; i++) {
@@ -901,7 +932,7 @@ var oc_zdp_width,
         // because the above pathh (left case) apply displacements in all its brothers to the right
         //
         var new_horizontalGrowts = [0, 0];
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (i = 0; i < node.children.length; i++) {
                 child = node.children[i];
                 new_horizontalGrowts = oc_update_fullbbox(options, node, child);
@@ -920,7 +951,7 @@ var oc_zdp_width,
         // debug
         //
         if (options.debug) {
-            if (typeof node.children != "undefined") {
+            if (oc_check_children(node.children)) {
                 for (i = 0; i < node.children.length; i++) {
                     child = node.children[i];
                     console.log('oc_boundboxes_dimensions [' + child.title + '] ' +
@@ -984,7 +1015,7 @@ var oc_zdp_width,
 
         // draw children
         //
-        if (typeof node.children != "undefined") {
+        if (oc_check_children(node.children)) {
             for (var i = 0; i < node.children.length; i++) {
                 oc_draw_obj(options,
                             node.children[i],
@@ -1128,6 +1159,9 @@ var oc_zdp_width,
             }
             var event_box_color_hover = node.subtype == 'dashed' ? options.dashed_box_color_hover : options.box_color_hover;
             var event_box_color       = node.subtype == 'dashed' ? options.dashed_box_color       : options.box_color;
+
+            var title;
+            var subtitle;
             // attach events to rectangle
             if (box.visible === true) {
                 box.hover(
@@ -1146,24 +1180,33 @@ var oc_zdp_width,
                     (typeof node.image_position != "undefined" && node.image_position == "above")) {   // text below image
                     title_ypos += options.images_size[1] + options.inner_padding;
                 }
-                var title = options.oc_paper.text(xc, title_ypos, node.title);
+                title = options.oc_paper.text(xc, title_ypos, node.title);
                 title.attr('font-family', options.text_font);
                 title.attr('font-size', options.title_font_size);
                 title.attr('fill', options.title_color);
                 if (typeof node.subtitle != "undefined") {
-                    var subtitle_ypos = nY1 - options.inner_padding
-                        - node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    if (options.subtitle_align_bottom) {
+                        var subtitle_ypos = nY1 - options.inner_padding
+                            - node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    }
+                    else {
+                        var subtitle_ypos = title_ypos + node.title_lines * options.title_char_size[1] / 2
+                            + node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    }
                     if (options.use_images && typeof node.image != "undefined")
                         subtitle_ypos -= options.images_size[1] + options.inner_padding;
                     if ((options.use_images && typeof node.image != "undefined") &&
                         (typeof node.image_position != "undefined" && node.image_position == "above")) {   // text below image
                         subtitle_ypos += options.images_size[1] + options.inner_padding;
                     }
-                    var subtitle = options.oc_paper.text(xc, subtitle_ypos, node.subtitle);
+                    subtitle = options.oc_paper.text(xc, subtitle_ypos, node.subtitle);
                     subtitle.attr('font-family', options.text_font);
                     subtitle.attr('font-size', options.subtitle_font_size);
                     subtitle.attr('fill', options.subtitle_color);
                 }
+            }
+            if (typeof options.box_finished_callback == "function") {
+                options.box_finished_callback(box, title, subtitle, image);
             }
         }
 
@@ -1234,7 +1277,7 @@ var oc_zdp_width,
     // prepare scale, zoom and print
     //
     function oc_zoom_print_prepare (options) {
-        $('#'+options.pdf_canvas).hide();
+        //$('#'+options.pdf_canvas).hide();
         options.oc_zdp_zoom            = options.initial_zoom;
         oc_zdp_width                   = $("svg").width();
         oc_zdp_height                  = $("svg").height();
@@ -1242,11 +1285,11 @@ var oc_zdp_width,
         options.oc_zdp_height_internal = oc_zdp_height;
         oc_zdp_width                  *= 0.76;
         oc_zdp_height                 *= 0.76;
-        $("#"+options.container_supra).scrollLeft(options.oc_zdp_width_internal * options.oc_zdp_zoom / 2 - options.pdf_canvas_width / 2);
-        $("#"+options.container).css('transform','scale('+options.oc_zdp_zoom+')');
-        $("#"+options.container).width (options.pdf_canvas_width  / (options.oc_zdp_width_internal  * 100) );
-        $("#"+options.container).height(options.pdf_canvas_height / (options.oc_zdp_height_internal * 100) );
-        $("svg").css('background','#FFFFFF');
+        //$("#"+options.container_supra).scrollLeft(options.oc_zdp_width_internal * options.oc_zdp_zoom / 2 - options.pdf_canvas_width / 2);
+        //$("#"+options.container).css('transform','scale('+options.oc_zdp_zoom+')');
+        //$("#"+options.container).width (options.pdf_canvas_width  / (options.oc_zdp_width_internal  * 100) );
+        //$("#"+options.container).height(options.pdf_canvas_height / (options.oc_zdp_height_internal * 100) );
+        //$("svg").css('background','#FFFFFF');
     }
 
 
@@ -1296,7 +1339,21 @@ var oc_zdp_width,
         pdf_document.save(options.pdf_filename);
     }
 
-
+    function oc_check_children(list) {
+        if (typeof list == "undefined") {
+            return false;
+        }
+        if (list == null) {
+            return false;
+        }
+        if (list == undefined || list == "undefined") {
+            return false;
+        }
+        if (list.length == 0) {
+            return false;
+        }
+        return true;		
+    }
 
 } ) (window);
 
