@@ -89,8 +89,6 @@ var oc_zdp_width,
 
     window.ggOrgChart = {
 
-
-
         // call this function in order to render a chart where the data comes from an external JSON file
         // if "this_json_file" (filename) is "null", then use the library will use a previously loaded JSON file
         // this is useful when rendering the same data with different options (and containers)
@@ -143,6 +141,14 @@ var oc_zdp_width,
             oc_print(options);
         },
 
+
+
+        // Allows adding data to the data_heap from outside so that the AJAX requests
+        // for fetching the data are optional.
+        //
+        pushToDataArray: function(data) {
+            data_heap.push(data);
+        }
     } ;
 
 
@@ -174,6 +180,7 @@ var oc_zdp_width,
         subtitle_font_size: 10,               // size of font used for displaying subtitles inside boxes
         title_char_size: [7, 12.5],           // size (x, y) of a char of the font used for displaying titles
         subtitle_char_size: [5, 10],          // size (x, y) of a char of the font used for displaying subtitles
+        subtitle_align_bottom: true,
         max_text_width: 0,                    // max width (in chars) of each line of text ('0' for no limit)
         text_font: 'Lucida Console, Courier', // font family to use (should be monospaced)
         delete_special_chars: true,           // special characters like umlauts are removed from all strings (e.g. title and subtitle)
@@ -238,7 +245,7 @@ var oc_zdp_width,
         // iterate on the identified OPTIONS (all of them with ".data"), and initiate the rendering for each ono
         // this process is not asynchronous
         for (i = 0; i < options_to_process.length; i++) {
-            this_options = options_heap[i];
+            this_options = options_to_process[i];
             oc_render_start_drawing(this_options);
         }
 
@@ -1178,8 +1185,14 @@ var oc_zdp_width,
                 title.attr('font-size', options.title_font_size);
                 title.attr('fill', options.title_color);
                 if (typeof node.subtitle != "undefined") {
-                    var subtitle_ypos = nY1 - options.inner_padding
-                        - node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    if (options.subtitle_align_bottom) {
+                        var subtitle_ypos = nY1 - options.inner_padding
+                            - node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    }
+                    else {
+                        var subtitle_ypos = title_ypos + node.title_lines * options.title_char_size[1] / 2
+                            + node.subtitle_lines * options.subtitle_char_size[1] / 2;
+                    }
                     if (options.use_images && typeof node.image != "undefined")
                         subtitle_ypos -= options.images_size[1] + options.inner_padding;
                     if ((options.use_images && typeof node.image != "undefined") &&
