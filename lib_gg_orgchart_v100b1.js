@@ -888,11 +888,15 @@ var oc_zdp_width,
                 child.deltacorner[0] += this_horizontalGrowts[0];
             }
             // right side
-            pt1 = node.fullbbox[0];
-            pt2 = child.fullbbox[0];
-            if (pt1 < pt2) {
-                this_horizontalGrowts[1] = pt2 - pt1;
-                node.fullbbox[0] += this_horizontalGrowts[1];
+            try{
+                pt1 = node.fullbbox[0];
+                pt2 = child.fullbbox[0];
+                if (pt1 < pt2) {
+                    this_horizontalGrowts[1] = pt2 - pt1;
+                    node.fullbbox[0] += this_horizontalGrowts[1];
+                }
+            } catch(ex){
+                console.log(ex);
             }
         }
 
