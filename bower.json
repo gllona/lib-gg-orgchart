@@ -16,7 +16,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "1.9.1",
+    "jquery": "^1.9.1",
     "raphael": "2.1.0 (modified)",
     "jsrender": "1.0pre (modified)",
     "jspdf": "0.9.0rc1",
