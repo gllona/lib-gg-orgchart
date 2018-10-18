@@ -20,6 +20,7 @@ function getRows ()
     if (! ($dbConn = @mysqli_connect(ORGCHART_SERVER, ORGCHART_USER, ORGCHART_PASSWORD, ORGCHART_DATABASE))) {
         return null;
     }
+    mysqli_query($dbConn, "SET NAMES utf8");
     $table = ORGCHART_TABLE;
     $sql   = <<<END
         SELECT `id`, `title`, `subtitle`, `parent_id`, `type`
